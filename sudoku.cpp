@@ -72,3 +72,18 @@ void display_board(const char board[9][9]) {
 }
 
 /* add your functions here */
+
+/* function that checks if all the board positions are occupied by 1-9 digits */
+bool is_complete(const char board[9][9]){
+	char ch;
+	for (int row=0; row<9; row++){
+		for (int column=0; column<9; column++){
+			ch = board[row][column];
+			if (ch < '1' || ch > '9'){
+				return false;
+			}
+		}
+	}
+	return true;	
+}
+/* end of function is_complete */
