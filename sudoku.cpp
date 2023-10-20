@@ -87,3 +87,62 @@ bool is_complete(const char board[9][9]){
 	return true;	
 }
 /* end of function is_complete */
+
+bool make_move(const char position[2], const char digit, char board[9][9]){
+	int row_n, column_n, row_offset, column_offset;
+	row_n = position[0] - 'A';
+	column_n = position[1] - '1';
+
+	// out out bounds
+	if (row_n<0 || row_n>8 || column_n<0 || column_n>8){
+		cout << "\nOUT OF BOUNDS\n";
+		return false;
+	}
+
+	// Check all the row elements
+	for (int i=0; i<9; i++){
+		if (board[row_n][i] == digit){
+			cout << "\nALREADY IN THE ROW\n";
+			return false;
+		}
+	}
+
+	// Check all the column elements
+	for (int j=0; j<9; j++){
+		if (board[j][column_n] == digit){
+			cout << "\nALREADY IN THE COLUMN\n";
+			return false;
+		}
+	}
+
+	// Calculate the row and column offsets
+	if (row_n<3)
+		row_offset = 0;
+
+	if (row_n>=3 && row_n<6)
+		row_offset = 3;
+
+	if (row_n>=6)
+		row_offset = 6;
+
+	if (column_n<3)
+		column_offset = 0;
+
+	if (column_n>=3 && column_n<6)
+		column_offset = 3;
+
+	if (column_n>=6)
+		column_offset = 6;
+
+	// Check all the block elements
+	for (int m=0; m<3; m++){
+		for (int n=0; n<3; n++){
+			if (board[m+row_offset][n+column_offset] == digit){
+				cout << "\nALREADY IN THE BLOCK\n";
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
