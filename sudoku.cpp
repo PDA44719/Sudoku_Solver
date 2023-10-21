@@ -88,21 +88,10 @@ bool is_complete(const char board[9][9]){
 }
 /* end of function is_complete */
 
-bool make_move(const char position[2], const char digit, char board[9][9]){
-	int row_n, column_n, row_offset, column_offset;
-	row_n = position[0] - 'A';
-	column_n = position[1] - '1';
-
-	// out out bounds
-	if (row_n<0 || row_n>8 || column_n<0 || column_n>8){
-		cout << "\nOUT OF BOUNDS\n";
-		return false;
-	}
-
+bool check_row_and_column(const int row_n, const int column_n, const char digit, const char board[9][9]){
 	// Check all the row elements
 	for (int i=0; i<9; i++){
 		if (board[row_n][i] == digit){
-			cout << "\nALREADY IN THE ROW\n";
 			return false;
 		}
 	}
@@ -110,39 +99,55 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 	// Check all the column elements
 	for (int j=0; j<9; j++){
 		if (board[j][column_n] == digit){
-			cout << "\nALREADY IN THE COLUMN\n";
 			return false;
 		}
 	}
 
-	// Calculate the row and column offsets
-	if (row_n<3)
-		row_offset = 0;
+	return true;
+}
 
-	if (row_n>=3 && row_n<6)
-		row_offset = 3;
+int calculate_block_offset(int position){
+	int offset;
+	if (position<3)
+		offset = 0;
 
-	if (row_n>=6)
-		row_offset = 6;
+	if (position>=3 && position<6)
+		offset = 3;
 
-	if (column_n<3)
-		column_offset = 0;
+	if (position>=6)
+		offset = 6;
+	
+	return offset;
+}
 
-	if (column_n>=3 && column_n<6)
-		column_offset = 3;
-
-	if (column_n>=6)
-		column_offset = 6;
-
-	// Check all the block elements
+bool check_block(const int row_offset, const int column_offset, const char digit, const char board[9][9]){
 	for (int m=0; m<3; m++){
 		for (int n=0; n<3; n++){
-			if (board[m+row_offset][n+column_offset] == digit){
-				cout << "\nALREADY IN THE BLOCK\n";
+			if (board[m+row_offset][n+column_offset] == digit)
 				return false;
-			}
 		}
 	}
-
 	return true;
+}
+
+bool make_move(const char position[2], const char digit, char board[9][9]){
+	int row_n, column_n, row_offset, column_offset;
+	row_n = position[0] - 'A';
+	column_n = position[1] - '1';
+
+	// out out bounds
+	if (row_n<0 || row_n>8 || column_n<0 || column_n>8){
+		return false;
+	}
+
+	row_offset = calculate_block_offset(row_n);
+	column_offset = calculate_block_offset(column_n);
+	
+	// Insert the digit if insertion is valid and return true, otherwise return false
+	if (check_row_and_column(row_n, column_n, digit, board) && check_block(row_offset, column_offset, digit, board)){ 
+		board[row_n][column_n] = digit;
+		return true;
+	}
+
+	return false; // Inserting the digit at that position was invalid
 }
