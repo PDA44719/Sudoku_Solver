@@ -151,3 +151,17 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 
 	return false; // Inserting the digit at that position was invalid
 }
+
+bool save_board(char* filename, const char board[9][9]){
+	ofstream os(filename);
+	if (!os){
+		cout << "Failed" << endl;
+		return false;
+	}
+	char board_row[9];
+	for (int row_n=0; row_n<9; row_n++){
+		strncpy(board_row, board[row_n], 9); // Copy the first 9 elements of the array (the entire row)
+		os << board_row << endl;
+	}
+	return true;
+}
