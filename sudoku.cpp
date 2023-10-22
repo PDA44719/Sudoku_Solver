@@ -140,6 +140,10 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 		return false;
 	}
 
+	// number already at that position
+	if (board[row_n][column_n] != '.')
+		return false;
+
 	row_offset = calculate_block_offset(row_n);
 	column_offset = calculate_block_offset(column_n);
 	
@@ -164,4 +168,74 @@ bool save_board(char* filename, const char board[9][9]){
 		os << board_row << endl;
 	}
 	return true;
+}
+
+void get_current_position(char previous_position[2], char current_position[2]){
+	//cout << "This is the previous position found: " << previous_position << endl;
+	//if (strcmp(previous_position, "A9") == 0)
+	//	cout << "A9 is the previous position" << endl;
+	if (strcmp(previous_position, "A0") == 0){
+		//cout << "Condition 1" << endl;
+		current_position[0] = 'A';
+		current_position[1] = '1';
+	} else if (previous_position[1]<'9') {
+		//cout << "Condition 2" << endl;
+		current_position[1] = previous_position[1] + 1;
+		current_position[0] = previous_position[0];
+	}
+	else if (previous_position[1]=='9' && previous_position[0]<'I'){
+		//cout << "Condition 3" << endl;
+		current_position[0] = previous_position[0] + 1;
+		current_position[1] = '1';
+	}
+	//if (strcmp(previous_position, "A9") == 0){
+	//	cout << "This is the current position found: " << current_position << endl;
+	//	exit(1);
+	//}
+}
+
+bool number_already_inserted(char position[2], const char board[9][9]){
+	int row_n = position[0] - 'A';
+	int column_n = position[1] - '1';
+	if (board[row_n][column_n] != '.')
+		return true;
+	return false;
+}
+
+bool find_valid_digit(char previous_position[2], char board[9][9]){
+	char current_position[] = "..";
+	get_current_position(previous_position, current_position);
+	if (number_already_inserted(current_position, board))
+		return find_valid_digit(current_position, board);
+	bool valid_move, valid_solution_found;
+	int row_n = current_position[0] - 'A';
+	int column_n = current_position[1] - '1';
+	for (char digit='1'; digit<='9'; digit++){
+		//cout << "I am trying to make a move at current position: " << current_position << endl;
+		valid_move = make_move(current_position, digit, board); // Try to make the move
+		if (valid_move){
+			//display_board(board);
+			if (row_n == 8 && column_n == 8){ // Board has been solved
+				//cout << "I have entered here at some point" << endl;
+				return true;
+			}
+			else {
+				valid_solution_found = find_valid_digit(current_position, board);	
+				if (valid_solution_found){
+					//cout << "I am returning true" << endl;
+					return true;
+				}
+				else 
+					board[row_n][column_n] = '.'; // Set it back to a dot and continue searching
+			}
+		}
+		
+	}
+	return false; // No valid digit was found
+	
+}
+
+bool solve_board(char board[9][9]){
+	char initial_position[] = "A0";
+	return find_valid_digit(initial_position, board);
 }
