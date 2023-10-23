@@ -203,6 +203,7 @@ bool number_already_inserted(char position[2], const char board[9][9]){
 }
 
 bool find_valid_digit(char previous_position[2], char board[9][9]){
+	//static int number_of_solutions_attempted = 0;
 	char current_position[] = "..";
 	get_current_position(previous_position, current_position);
 	bool valid_move, valid_solution_found;
@@ -210,8 +211,10 @@ bool find_valid_digit(char previous_position[2], char board[9][9]){
 	int column_n = current_position[1] - '1';
 	
 	// There is a number already inserted but we have reached the end of the board
-	if (number_already_inserted(current_position, board) && row_n==8 && column_n==8)
+	if (number_already_inserted(current_position, board) && row_n==8 && column_n==8){
+		//cout << "The number of solutions attempted was: " << number_of_solutions_attempted << endl;
 		return true;
+	}
 
 	// There is a number already inserted, hence we need to move to the next position
 	else if (number_already_inserted(current_position, board)) 
@@ -221,10 +224,12 @@ bool find_valid_digit(char previous_position[2], char board[9][9]){
 	for (char digit='1'; digit<='9'; digit++){
 		//cout << "I am trying to make a move at current position: " << current_position << endl;
 		valid_move = make_move(current_position, digit, board); // Try to make the move
+		//number_of_solutions_attempted += 1;
 		if (valid_move){
 			//display_board(board);
 			if (row_n == 8 && column_n == 8){ // Board has been solved
 				//cout << "I have entered here at some point" << endl;
+				//cout << "The number of solutions attempted was: " << number_of_solutions_attempted << endl;
 				return true;
 			}
 			else {

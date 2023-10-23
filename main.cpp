@@ -1,4 +1,6 @@
 #include <iostream>
+//#include<time>
+#include<chrono>
 #include <cstdio>
 #include "sudoku.h"
 
@@ -85,10 +87,15 @@ int main() {
 
   // write more tests
   
+
   load_board("mystery1.dat", board);
+  auto stop = chrono::high_resolution_clock::now();
+  auto start = chrono::high_resolution_clock::now();
   if (solve_board(board)) {
+	stop = chrono::high_resolution_clock::now();
     cout << "The 'myster1' board has a solution:\n";
     display_board(board);
+	cout << "The time it took to get this solution was: " << chrono::duration_cast<chrono::microseconds>(stop-start).count() << " microseconds." << endl;
   } else {
     cout << "A solution cannot be found.\n";
   }
@@ -103,14 +110,19 @@ int main() {
   }
   cout << '\n';
 
+  auto stop2 = chrono::high_resolution_clock::now();
+  auto start2 = chrono::high_resolution_clock::now();
   load_board("mystery3.dat", board);
   if (solve_board(board)) {
+    stop2 = chrono::high_resolution_clock::now();
     cout << "The 'mystery3' board has a solution:\n";
     display_board(board);
+	cout << "The time it took to get this solution was: " << chrono::duration_cast<chrono::microseconds>(stop2-start2).count() << " microseconds." << endl;
   } else {
     cout << "A solution cannot be found.\n";
   }
   cout << '\n';
+  cout << "Mystery1 board was solved x" << chrono::duration_cast<chrono::microseconds>(stop-start).count() / chrono::duration_cast<chrono::microseconds>(stop2-start2).count() << " times slower than Mystery3 board." << endl;
 
   return 0; 
 } 
