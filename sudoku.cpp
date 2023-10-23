@@ -205,11 +205,19 @@ bool number_already_inserted(char position[2], const char board[9][9]){
 bool find_valid_digit(char previous_position[2], char board[9][9]){
 	char current_position[] = "..";
 	get_current_position(previous_position, current_position);
-	if (number_already_inserted(current_position, board))
-		return find_valid_digit(current_position, board);
 	bool valid_move, valid_solution_found;
 	int row_n = current_position[0] - 'A';
 	int column_n = current_position[1] - '1';
+	
+	// There is a number already inserted but we have reached the end of the board
+	if (number_already_inserted(current_position, board) && row_n==8 && column_n==8)
+		return true;
+
+	// There is a number already inserted, hence we need to move to the next position
+	else if (number_already_inserted(current_position, board)) 
+		return find_valid_digit(current_position, board);
+
+	//cout << "This is the current position -> " << row_n << " and " << column_n << endl;
 	for (char digit='1'; digit<='9'; digit++){
 		//cout << "I am trying to make a move at current position: " << current_position << endl;
 		valid_move = make_move(current_position, digit, board); // Try to make the move
