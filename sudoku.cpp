@@ -135,10 +135,9 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 	row_n = position[0] - 'A';
 	column_n = position[1] - '1';
 
-	// out out bounds
-	if (row_n<0 || row_n>8 || column_n<0 || column_n>8){
+	// Position is out of bounds
+	if (row_n<0 || row_n>8 || column_n<0 || column_n>8)
 		return false;
-	}
 
 	// number already at that position
 	if (board[row_n][column_n] != '.')
@@ -171,84 +170,69 @@ bool save_board(char* filename, const char board[9][9]){
 }
 
 void get_current_position(char previous_position[2], char current_position[2]){
-	//cout << "This is the previous position found: " << previous_position << endl;
-	//if (strcmp(previous_position, "A9") == 0)
-	//	cout << "A9 is the previous position" << endl;
-	if (strcmp(previous_position, "A0") == 0){
-		//cout << "Condition 1" << endl;
+	// If board solving has not started, go to the first position of the board
+	if (strcmp(previous_position, "A0") == 0){ 
 		current_position[0] = 'A';
 		current_position[1] = '1';
-	} else if (previous_position[1]<'9') {
-		//cout << "Condition 2" << endl;
+	} 
+	// Go to the next column if the end of the row has not been reached
+	else if (previous_position[1]<'9') {
 		current_position[1] = previous_position[1] + 1;
 		current_position[0] = previous_position[0];
 	}
-	else if (previous_position[1]=='9' && previous_position[0]<'I'){
-		//cout << "Condition 3" << endl;
+	// Go to the next row after the final column has been reached
+	else if (previous_position[1]=='9'){
 		current_position[0] = previous_position[0] + 1;
 		current_position[1] = '1';
 	}
-	//if (strcmp(previous_position, "A9") == 0){
-	//	cout << "This is the current position found: " << current_position << endl;
-	//	exit(1);
-	//}
 }
 
-bool number_already_inserted(char position[2], const char board[9][9]){
+bool number_already_present(char position[2], const char board[9][9]){
 	int row_n = position[0] - 'A';
 	int column_n = position[1] - '1';
-	if (board[row_n][column_n] != '.')
+
+	if (board[row_n][column_n] != '.') // The cell already has a number inside
 		return true;
 	return false;
 }
 
-bool find_valid_digit(char previous_position[2], char board[9][9]){
-	//static int number_of_solutions_attempted = 0;
-	char current_position[] = "..";
+bool find_next_digit(char previous_position[2], char board[9][9]){
+	bool valid_move, solution_found;
+	char current_position[] = ".."; 
 	get_current_position(previous_position, current_position);
-	bool valid_move, valid_solution_found;
 	int row_n = current_position[0] - 'A';
 	int column_n = current_position[1] - '1';
-	
-	// There is a number already inserted but we have reached the end of the board
-	if (number_already_inserted(current_position, board) && row_n==8 && column_n==8){
-		//cout << "The number of solutions attempted was: " << number_of_solutions_attempted << endl;
-		return true;
-	}
 
-	// There is a number already inserted, hence we need to move to the next position
-	else if (number_already_inserted(current_position, board)) 
-		return find_valid_digit(current_position, board);
+	// If end of board was reached and number is present at the final position
+	if (number_already_present(current_position, board) && row_n==8 && column_n==8)
+		return true; // Board has been solved
 
-	//cout << "This is the current position -> " << row_n << " and " << column_n << endl;
+	// Go to the next position if there is a number present in the current cell
+	else if (number_already_present(current_position, board)) 
+		return find_next_digit(current_position, board);
+
 	for (char digit='1'; digit<='9'; digit++){
-		//cout << "I am trying to make a move at current position: " << current_position << endl;
-		valid_move = make_move(current_position, digit, board); // Try to make the move
-		//number_of_solutions_attempted += 1;
+		valid_move = make_move(current_position, digit, board); // Try to make move
 		if (valid_move){
-			//display_board(board);
-			if (row_n == 8 && column_n == 8){ // Board has been solved
-				//cout << "I have entered here at some point" << endl;
-				//cout << "The number of solutions attempted was: " << number_of_solutions_attempted << endl;
-				return true;
-			}
+			if (row_n == 8 && column_n == 8) // Final cell reached and board solved
+				return true; 
 			else {
-				valid_solution_found = find_valid_digit(current_position, board);	
-				if (valid_solution_found){
-					//cout << "I am returning true" << endl;
-					return true;
+				// With the newly iserted digit, try to find a board solution
+				solution_found = find_next_digit(current_position, board);	
+				if (solution_found)
+					return true; // The inserted digit led to a solution
+				else {
+					// Set it back to a dot and continue searching
+					board[row_n][column_n] = '.'; 
 				}
-				else 
-					board[row_n][column_n] = '.'; // Set it back to a dot and continue searching
 			}
 		}
 		
 	}
 	return false; // No valid digit was found
-	
 }
 
 bool solve_board(char board[9][9]){
-	char initial_position[] = "A0";
-	return find_valid_digit(initial_position, board);
+	char initial_position[] = "A0"; // Indicate board solving process has not started
+	return find_next_digit(initial_position, board);
 }
