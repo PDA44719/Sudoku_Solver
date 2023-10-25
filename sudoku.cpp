@@ -10,6 +10,7 @@ using namespace std;
 /* You are pre-supplied with the functions below. Add your own 
    function definitions to the end of this file. */
 
+// new comment
 /* pre-supplied function to load a Sudoku board from a file */
 void load_board(const char* filename, char board[9][9]) {
 
@@ -130,29 +131,37 @@ bool check_block(const int row_offset, const int column_offset, const char digit
 	return true;
 }
 
+bool number_already_present(const char position[2], const char board[9][9]){
+	int row_n = position[0] - 'A';
+	int column_n = position[1] - '1';
+
+	if (board[row_n][column_n] != '.') // The cell already has a number inside
+		return true;
+	return false;
+}
+
 bool make_move(const char position[2], const char digit, char board[9][9]){
 	int row_n, column_n, row_offset, column_offset;
 	row_n = position[0] - 'A';
 	column_n = position[1] - '1';
 
-	// Position is out of bounds
-	if (row_n<0 || row_n>8 || column_n<0 || column_n>8)
-		return false;
-
-	// number already at that position
-	if (board[row_n][column_n] != '.')
+	// If position out of bounds or number already present in the cell
+	if (row_n<0 || row_n>8 || column_n<0 || column_n>8 
+		|| number_already_present(position, board))
 		return false;
 
 	row_offset = calculate_block_offset(row_n);
 	column_offset = calculate_block_offset(column_n);
 	
-	// Insert the digit if insertion is valid and return true, otherwise return false
-	if (check_row_and_column(row_n, column_n, digit, board) && check_block(row_offset, column_offset, digit, board)){ 
+	// Place the digit if insertion is valid 
+	if (check_row_and_column(row_n, column_n, digit, board)
+		&& check_block(row_offset, column_offset, digit, board)){ 
+
 		board[row_n][column_n] = digit;
 		return true;
 	}
 
-	return false; // Inserting the digit at that position was invalid
+	return false; // Invalid insertion of the digit at that position
 }
 
 bool save_board(char* filename, const char board[9][9]){
@@ -187,16 +196,8 @@ void get_current_position(char previous_position[2], char current_position[2]){
 	}
 }
 
-bool number_already_present(char position[2], const char board[9][9]){
-	int row_n = position[0] - 'A';
-	int column_n = position[1] - '1';
-
-	if (board[row_n][column_n] != '.') // The cell already has a number inside
-		return true;
-	return false;
-}
-
 bool find_next_digit(char previous_position[2], char board[9][9]){
+	static int num_of_recursive_calls = 0;
 	bool valid_move, solution_found;
 	char current_position[] = ".."; 
 	get_current_position(previous_position, current_position);
@@ -204,8 +205,11 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 	int column_n = current_position[1] - '1';
 
 	// If end of board was reached and number is present at the final position
-	if (number_already_present(current_position, board) && row_n==8 && column_n==8)
+	if (number_already_present(current_position, board) && row_n==8 && column_n==8){
+		cout << "Number of backtracks: " << num_of_recursive_calls << endl;
+		num_of_recursive_calls = 0;
 		return true; // Board has been solved
+	}
 
 	// Go to the next position if there is a number present in the current cell
 	else if (number_already_present(current_position, board)) 
@@ -214,15 +218,19 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 	for (char digit='1'; digit<='9'; digit++){
 		valid_move = make_move(current_position, digit, board); // Try to make move
 		if (valid_move){
-			if (row_n == 8 && column_n == 8) // Final cell reached and board solved
+			if (row_n == 8 && column_n == 8){ // Final cell reached and board solved
+				cout << "Number of backtracks: " << num_of_recursive_calls << endl;
+				num_of_recursive_calls = 0;
 				return true; 
+			}
 			else {
 				// With the newly iserted digit, try to find a board solution
+				num_of_recursive_calls += 1;
 				solution_found = find_next_digit(current_position, board);	
 				if (solution_found)
 					return true; // The inserted digit led to a solution
 				else {
-					// Set it back to a dot and continue searching
+					// Set the cell back to a dot and continue searching
 					board[row_n][column_n] = '.'; 
 				}
 			}
