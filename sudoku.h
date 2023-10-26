@@ -7,5 +7,6 @@ bool is_complete(const char board[9][9]);
 bool make_move(const char position[2], const char digit, char board[9][9]);
 bool save_board(char* filename, const char board[9][9]);
 bool solve_board(char board[9][9]);
+int find_number_of_naked_singles(char board[9][9]);
 
 #endif

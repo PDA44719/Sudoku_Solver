@@ -124,5 +124,18 @@ int main() {
   cout << '\n';
   cout << "Mystery1 board was solved x" << chrono::duration_cast<chrono::microseconds>(stop-start).count() / chrono::duration_cast<chrono::microseconds>(stop2-start2).count() << " times slower than Mystery3 board." << endl;
 
-  return 0; 
+  // Count the number of naked singles
+  //load_board("mystery1.dat", board);
+  //cout << "mystery1 has " << find_number_of_naked_singles(board) << " naked single/s.";
+
+  //load_board("mystery3.dat", board);
+  //cout << "mystery3 has " << find_number_of_naked_singles(board) << " naked single/s.";
+
+  //load_board("easy.dat", board);
+  //cout << "easy has " << find_number_of_naked_singles(board) << " naked single/s.";
+
+  //load_board("medium.dat", board);
+  //cout << "medium has " << find_number_of_naked_singles(board) << " naked single/s.";
+
+  //return 0; 
 } 

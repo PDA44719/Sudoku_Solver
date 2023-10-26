@@ -198,6 +198,7 @@ void get_current_position(char previous_position[2], char current_position[2]){
 
 bool find_next_digit(char previous_position[2], char board[9][9]){
 	static int num_of_recursive_calls = 0;
+	num_of_recursive_calls += 1;
 	bool valid_move, solution_found;
 	char current_position[] = ".."; 
 	get_current_position(previous_position, current_position);
@@ -212,8 +213,10 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 	}
 
 	// Go to the next position if there is a number present in the current cell
-	else if (number_already_present(current_position, board)) 
+	else if (number_already_present(current_position, board)) {
+		//num_of_recursive_calls += 1;
 		return find_next_digit(current_position, board);
+	}
 
 	for (char digit='1'; digit<='9'; digit++){
 		valid_move = make_move(current_position, digit, board); // Try to make move
@@ -225,7 +228,7 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 			}
 			else {
 				// With the newly iserted digit, try to find a board solution
-				num_of_recursive_calls += 1;
+				//num_of_recursive_calls += 1;
 				solution_found = find_next_digit(current_position, board);	
 				if (solution_found)
 					return true; // The inserted digit led to a solution
@@ -237,10 +240,45 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 		}
 		
 	}
+	if (row_n==0 && column_n==0)
+		num_of_recursive_calls = 0; // Reset it to 0 if the board has no solution
 	return false; // No valid digit was found
 }
 
 bool solve_board(char board[9][9]){
 	char initial_position[] = "A0"; // Indicate board solving process has not started
 	return find_next_digit(initial_position, board);
+}
+
+int find_number_of_naked_singles(char board[9][9]){
+	char n_of_potential_solutions[9][9] = {'N'};
+	bool valid_move;
+	char position[] = "..";
+	int n_of_val_moves = 0;
+
+	long int combinations = 1;
+	for (char row='A'; row<'J'; row++){
+		for (char col='1'; col<='9'; col++){
+			position[0] = row;
+			position[1] = col;
+			n_of_val_moves = 0;
+			for (char digit='1'; digit>='9'; digit++){
+				valid_move = make_move(position, digit, board);
+				if (valid_move){
+					n_of_val_moves += 1;
+					board[static_cast<int>(row-'A')][static_cast<int>(col-'1')] = '.';
+				}
+			}
+			n_of_potential_solutions[static_cast<int>(row-'A')][static_cast<int>(col-'1')] = static_cast<char>(n_of_val_moves + 48); 
+			if (n_of_val_moves != 0){
+				cout << combinations << endl;
+				combinations *= n_of_val_moves;
+			}
+			if (board[static_cast<int>(row-'A')][static_cast<int>(col-'1')] != '.')
+				n_of_potential_solutions[static_cast<int>(row-'A')][static_cast<int>(col-'1')] = ' '; 
+		}
+	}
+	cout << endl;
+	display_board(n_of_potential_solutions);
+	return combinations;
 }
