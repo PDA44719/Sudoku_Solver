@@ -177,17 +177,24 @@ bool save_board(char* filename, const char board[9][9]){
 	}
 	return true;
 }
-void get_current_position(char previous_position[2], char current_position[2]){
-	// Go to the next column if the end of the row has not been reached
-	if (previous_position[1]<'9') {
-		current_position[1] = previous_position[1] + 1;
-		current_position[0] = previous_position[0];
+
+void get_current_position(char previous_position[2], char current_position[2], const char board[9][9]){
+	strcpy(current_position, previous_position);
+	bool empty_position_found = false;
+	while (!empty_position_found){
+		// Go to the next column if the end of the row has not been reached
+		if (current_position[1]<'9') {
+			current_position[1] += 1;
+		}
+		// Go to the next row after the final column has been reached
+		else if (current_position[1]=='9'){
+			current_position[0] += 1;
+			current_position[1] = '1';
+		}
+		if (!number_already_present(current_position, board))
+			empty_position_found = true;
 	}
-	// Go to the next row after the final column has been reached
-	else if (previous_position[1]=='9'){
-		current_position[0] = previous_position[0] + 1;
-		current_position[1] = '1';
-	}
+	//cout << "Position found: " << current_position << endl;
 }
 
 bool find_next_digit(char previous_position[2], char board[9][9]){
@@ -195,7 +202,7 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 	num_of_recursive_calls += 1;
 	bool valid_move, solution_found;
 	char current_position[] = ".."; 
-	get_current_position(previous_position, current_position);
+	get_current_position(previous_position, current_position, board);
 	int row_n = current_position[0] - 'A';
 	int column_n = current_position[1] - '1';
 
