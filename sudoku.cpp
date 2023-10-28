@@ -89,6 +89,16 @@ bool is_complete(const char board[9][9]){
 }
 /* end of function is_complete */
 
+/**
+ * @brief Check if a digit is already present inside a specific row or column
+ * 
+ * @param row_n: the index of the row to be checked  
+ * @param column_n: the index of the column to be checked
+ * @param digit: the char containing the digit ('1' to '9')
+ * @param board: an array containing the 9x9 sudoku board 
+ * @return true if the digit was not present inside the row or the column 
+ * @return false if the digit was present inside either the row or the column 
+ */
 bool check_row_and_column(const int row_n, const int column_n, const char digit, const char board[9][9]){
 	// Check all the row elements
 	for (int i=0; i<9; i++){
@@ -96,17 +106,23 @@ bool check_row_and_column(const int row_n, const int column_n, const char digit,
 			return false;
 		}
 	}
-
 	// Check all the column elements
 	for (int j=0; j<9; j++){
 		if (board[j][column_n] == digit){
 			return false;
 		}
 	}
-
 	return true;
 }
 
+/**
+ * @brief Calculate the vertical or horizontal offset of the block containing a specific
+ * digit. E.g., an element on row 4 would be part of a block whose vertical offset is +3.
+ * Hence, rows 3-5 would be checked to determine if a move is legal
+ * 
+ * @param position: the index of the row or column position of a digit to be inserted
+ * @return int, the block offset 
+ */
 int calculate_block_offset(int position){
 	int offset;
 	if (position<3)
@@ -117,20 +133,38 @@ int calculate_block_offset(int position){
 
 	if (position>=6)
 		offset = 6;
-	
+
 	return offset;
 }
 
-bool check_block(const int row_offset, const int column_offset, const char digit, const char board[9][9]){
-	for (int m=0; m<3; m++){
-		for (int n=0; n<3; n++){
-			if (board[m+row_offset][n+column_offset] == digit)
+/**
+ * @brief Check if a digit is present inside a specific 3x3 block
+ * 
+ * @param vertical_offset: the vertical offset of the block
+ * @param horizontal_offset: the horizontal offset of the block 
+ * @param digit: the char containing the digit ('1' to '9')
+ * @param board: an array containing the 9x9 sudoku board 
+ * @return true if the digit was not present inside the block 
+ * @return false if the digit was present, and hence the insertion is invalid
+ */
+bool check_block(const int vertical_offset, const int horizontal_offset, const char digit, const char board[9][9]){
+	for (int row=0; row<3; row++){
+		for (int col=0; col<3; col++){
+			if (board[row+vertical_offset][col+horizontal_offset] == digit)
 				return false;
 		}
 	}
 	return true;
 }
 
+/**
+ * @brief Check if a digit is already present at a specific board position
+ * 
+ * @param position: a char array indicating the position in the board 
+ * @param board: an array containing the 9x9 sudoku board
+ * @return true if a digit is already present at that position 
+ * @return false if there is a dot (i.e., no digit) present at that position 
+ */
 bool number_already_present(const char position[2], const char board[9][9]){
 	int row_n = position[0] - 'A';
 	int column_n = position[1] - '1';
@@ -141,7 +175,7 @@ bool number_already_present(const char position[2], const char board[9][9]){
 }
 
 bool make_move(const char position[2], const char digit, char board[9][9]){
-	int row_n, column_n, row_offset, column_offset;
+	int row_n, column_n, vertical_offset, horizontal_offset;
 	row_n = position[0] - 'A';
 	column_n = position[1] - '1';
 
@@ -150,12 +184,12 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 		|| number_already_present(position, board))
 		return false;
 
-	row_offset = calculate_block_offset(row_n);
-	column_offset = calculate_block_offset(column_n);
+	vertical_offset = calculate_block_offset(row_n);
+	horizontal_offset = calculate_block_offset(column_n);
 	
 	// Place the digit if insertion is valid 
 	if (check_row_and_column(row_n, column_n, digit, board)
-		&& check_block(row_offset, column_offset, digit, board)){ 
+		&& check_block(vertical_offset, horizontal_offset, digit, board)){ 
 
 		board[row_n][column_n] = digit;
 		return true;
@@ -178,6 +212,14 @@ bool save_board(char* filename, const char board[9][9]){
 	return true;
 }
 
+/**
+ * @brief Given the previous position that the find_next_digit function was checking,
+ * determine the following position that the recursive function must check
+ * 
+ * @param previous_position: The position that the previous recursive call was checking 
+ * @param current_position: The position that the current recursive call must check 
+ * @param board: an array containing the 9x9 sudoku board 
+ */
 void get_current_position(char previous_position[2], char current_position[2], const char board[9][9]){
 	strcpy(current_position, previous_position);
 	bool empty_position_found = false;
@@ -191,12 +233,23 @@ void get_current_position(char previous_position[2], char current_position[2], c
 			current_position[0] += 1;
 			current_position[1] = '1';
 		}
+
+		// If empty position found, leave loop
 		if (!number_already_present(current_position, board))
 			empty_position_found = true;
 	}
-	//cout << "Position found: " << current_position << endl;
 }
 
+/**
+ * @brief Recursive function that will find a valid digit for a specific position and then
+ * move on to the next position, and keep repeating the process. When no valid digits are 
+ * found, it goes to the previous position and tries new digits 
+ * 
+ * @param previous_position: The position that the previous recursive call was checking 
+ * @param board: an array containing the 9x9 sudoku board  
+ * @return true if valid digits have been found for all the empty board positions 
+ * @return false if a valid digit was not found at a specific position 
+ */
 bool find_next_digit(char previous_position[2], char board[9][9]){
 	static int num_of_recursive_calls = 0;
 	num_of_recursive_calls += 1;
