@@ -1,17 +1,33 @@
-Question 5 asked students to identify the "hard", "extremely hard" and impossible to solve mystery boards. This document will start by stating that 'mystery2' board is the one that is impossible to solve. When it comes to distinguishing between the two hard boards, this is a more challenging task.
+Question 5 asked students to identify the "hard", "extremely hard" and impossible to solve mystery boards. This document
+will start by stating that 'mystery2' board is the one that is impossible to solve. When it comes to distinguishing between
+the two hard boards, this is a more challenging task.
 
-If one of the boards had 78 digits already given and another just 20 digits, the answer would be easy. However, 'mystery1' has 23 digits and 'mystery3' has 24 digits. Therefore, a different measure of difficulty will be chosen: The number of recursive calls made. While the amount of time it took to solve each board will also be displayed, it is not as good of a measure as a computer might be running multiple processes at the same time, which could affect the results. 
+If one of the boards had 78 digits already given and another just 20 digits, the answer would be easy. However, 'mystery1'
+has 23 digits and 'mystery3' has 24 digits. Therefore, a different measure of difficulty will be chosen: The number of
+recursive calls made. While the amount of time it took to solve each board will also be displayed, it is not as good of a
+measure as a computer might be running multiple processes at the same time, which could affect the results. 
 
 When calculating the number of recursive calls made when solving each board, the results are as follows:
 - 'mystery1' was solved in a around 200ms and 421546 recursive calls were made.
 - 'mystery3' was solved in around 6ms and 14133 recursive calls were made.
 
-These results would indicate that 'mystery1' is the extremely hard board, while 'mystery3' is the hard board. Nevertheless, the difficulty of each board is a matter that is entirely dependent on the solving algorithm. My algorithm, when trying to find a solution, will will look for digits to insert in ascending order (i.e., from 1 to 9). Therefore, on a board like 'mystery1' for which the solutions to the first empty cells are high numbers (9 and 7), more "branches" will need to be checked before finding the solution. 
+These results would indicate that 'mystery1' is the extremely hard board, while 'mystery3' is the hard board. Nevertheless,
+the difficulty of each board is a matter that is entirely dependent on the solving algorithm. My algorithm, when trying to
+find a solution, will will look for digits to insert in ascending order (i.e., from 1 to 9). Therefore, on a board like
+'mystery1' for which the solutions to the first empty cells are high numbers (9 and 7), more "branches" will need to be
+checked before finding the solution. 
 
-With the aim of having a more complete picture of the problem, the solving algorithm will be modified so that high numbers are checked first (i.e., from 9 to 1). The new results are:
+With the aim of having a more complete picture of the problem, the solving algorithm will be modified so that high numbers
+are checked first (i.e., from 9 to 1). The new results are:
 - 'mystery1' was solved in a around 10ms and 16453 recursive calls were made.
 - 'mystery3' was solved in a around 10ms and 16459 recursive calls were made.
 
-When looking at these results, a different view was presented. It would seem that 'mystery3' is slightly more difficult than 'mystery1'. This illustrates how much the operation of each algorithm affects the number of needed calls. Therefore, if a sudoku puzzle designer knew the way that an algorithm operates, they could create a puzzle that would take as many recursive calls as possible to solve. Hence, to construct an algorithm that is as robust as possible against this, the order in which digits are checked should be random every time the program runs.
+When looking at these results, a different view was presented. It would seem that 'mystery3' is slightly more difficult
+than 'mystery1'. This illustrates how much the operation of each algorithm affects the number of needed calls. Therefore,
+if a sudoku puzzle designer knew the way that an algorithm operates, they could create a puzzle that would take as many
+recursive calls as possible to solve. Hence, to construct an algorithm that is as robust as possible against this, the
+order in which digits are checked should be random every time the program runs.
 
-To sum up, for my originally designed algorithm which checks digits in ascending order, 'mystery1' is the extremely hard puzzle, while 'mystery3' is the hard puzzle. Nevertheless, this is a subjective matter as a differently designed algorithm could offer a dissimilar answer to the same question. 
+To sum up, for my originally designed algorithm which checks digits in ascending order, 'mystery1' is the extremely hard
+puzzle, while 'mystery3' is the hard puzzle. Nevertheless, this is a subjective matter as a differently designed algorithm
+could offer a dissimilar answer to the same question. 
