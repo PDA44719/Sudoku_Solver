@@ -46,10 +46,36 @@ int main() {
   if (!make_move("I8", '1', board)) {
     cout << "NOT ";
   }
+  cout << "a valid move.\n";
+
+  // Should be invalid insertion because the position is out of bounds
+  cout << "Putting '5' into C0 is ";
+  if (!make_move("C0", '5', board)) {
+    cout << "NOT ";
+  }
+  cout << "a valid move.\n";
+
+  // Should be invalid because the digit is already present in the block
+  cout << "Putting '9' into F5 is ";
+  if (!make_move("F5", '9', board)) {
+    cout << "NOT ";
+  }
+  cout << "a valid move.\n";
+
+  // Should be invalid because the digit is already present in the column
+  cout << "Putting '8' into G3 is ";
+  if (!make_move("G3", '8', board)) {
+    cout << "NOT ";
+  }
+  cout << "a valid move.\n";
+
+  // Should be invalid because there is a digit already present at that position 
+  cout << "Putting '7' into E8 is ";
+  if (!make_move("E8", '7', board)) {
+    cout << "NOT ";
+  }
   cout << "a valid move. The board is:\n";
   display_board(board);
-
-  // write more tests
 
   cout << "=================== Question 3 ===================\n\n";
 
@@ -80,62 +106,63 @@ int main() {
     cout << "A solution cannot be found.\n";
   }
   cout << '\n';
+  save_board("medium-solution.dat", board);
 
   // write more tests
-
-  cout << "=================== Question 5 ===================\n\n";
-
-  // write more tests
-  
-
   load_board("mystery1.dat", board);
-  auto stop = chrono::high_resolution_clock::now();
-  auto start = chrono::high_resolution_clock::now();
   if (solve_board(board)) {
-	stop = chrono::high_resolution_clock::now();
-    cout << "The 'myster1' board has a solution:\n";
+    cout << "The 'mystery1' board has a solution:\n";
     display_board(board);
-	cout << "The time it took to get this solution was: " << chrono::duration_cast<chrono::microseconds>(stop-start).count() << " microseconds." << endl;
   } else {
     cout << "A solution cannot be found.\n";
   }
   cout << '\n';
-	
+  save_board("mystery1-solution.dat", board);
+
   load_board("mystery2.dat", board);
   if (solve_board(board)) {
     cout << "The 'mystery2' board has a solution:\n";
     display_board(board);
   } else {
     cout << "A solution cannot be found.\n";
+    // Display board to make sure it is the same is the original
+    display_board(board); 
   }
   cout << '\n';
+  save_board("mystery2-solution.dat", board);
 
-  auto stop2 = chrono::high_resolution_clock::now();
-  auto start2 = chrono::high_resolution_clock::now();
   load_board("mystery3.dat", board);
   if (solve_board(board)) {
-    stop2 = chrono::high_resolution_clock::now();
     cout << "The 'mystery3' board has a solution:\n";
     display_board(board);
-	cout << "The time it took to get this solution was: " << chrono::duration_cast<chrono::microseconds>(stop2-start2).count() << " microseconds." << endl;
   } else {
     cout << "A solution cannot be found.\n";
   }
   cout << '\n';
-  cout << "Mystery1 board was solved x" << chrono::duration_cast<chrono::microseconds>(stop-start).count() / chrono::duration_cast<chrono::microseconds>(stop2-start2).count() << " times slower than Mystery3 board." << endl;
+  save_board("mystery3-solution.dat", board);
 
-  // Count the number of naked singles
-  //load_board("mystery1.dat", board);
-  //cout << "mystery1 has " << find_number_of_naked_singles(board) << " naked single/s.";
+  cout << "=================== Question 5 ===================\n\n";
 
-  //load_board("mystery3.dat", board);
-  //cout << "mystery3 has " << find_number_of_naked_singles(board) << " naked single/s.";
+  /*
+  In this section, the time it took to solve 'mystery1' and 'mystery3' will be
+  computed. Furthermore, as the solve_board function has been programmed to calculate
+  the number of recursive calls, this information will also be displayed (it can also
+  be seen in the Question 4 section)
+  */
+  
+  load_board("mystery1.dat", board);
+  auto start = chrono::high_resolution_clock::now();
+  solve_board(board);
+	auto stop = chrono::high_resolution_clock::now();
+  auto time_difference = chrono::duration_cast<chrono::milliseconds>(stop-start).count();  
+  cout << "The 'mystery1' solution was found in " << time_difference << " ms." << endl;
+	
+  load_board("mystery3.dat", board);
+  start = chrono::high_resolution_clock::now();
+  solve_board(board); 
+  stop = chrono::high_resolution_clock::now();
+  time_difference = chrono::duration_cast<chrono::milliseconds>(stop-start).count(); 
+  cout << "The 'mystery3' solution was found in " << time_difference << " ms." << endl;
 
-  //load_board("easy.dat", board);
-  //cout << "easy has " << find_number_of_naked_singles(board) << " naked single/s.";
-
-  //load_board("medium.dat", board);
-  //cout << "medium has " << find_number_of_naked_singles(board) << " naked single/s.";
-
-  //return 0; 
+  return 0; 
 } 

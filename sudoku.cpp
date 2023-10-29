@@ -74,7 +74,6 @@ void display_board(const char board[9][9]) {
 
 /* add your functions here */
 
-/* function that checks if all the board positions are occupied by 1-9 digits */
 bool is_complete(const char board[9][9]){
 	char ch;
 	for (int row=0; row<9; row++){
@@ -87,7 +86,6 @@ bool is_complete(const char board[9][9]){
 	}
 	return true;	
 }
-/* end of function is_complete */
 
 /**
  * @brief Check if a digit is already present inside a specific row or column
@@ -118,7 +116,7 @@ bool check_row_and_column(const int row_n, const int column_n, const char digit,
 /**
  * @brief Calculate the vertical or horizontal offset of the block containing a specific
  * digit. E.g., an element on row 4 would be part of a block whose vertical offset is +3.
- * Hence, rows 3-5 would be checked to determine if a move is legal
+ * Hence, rows 0+3 to 2+3 (3-5) would be checked to determine if a move is legal
  * 
  * @param position: the index of the row or column position of a digit to be inserted
  * @return int, the block offset 
@@ -140,7 +138,7 @@ int calculate_block_offset(int position){
 /**
  * @brief Check if a digit is present inside a specific 3x3 block
  * 
- * @param vertical_offset: the vertical offset of the block
+ * @param vertical_offset: the vertical offset of the block (example in previous function)
  * @param horizontal_offset: the horizontal offset of the block 
  * @param digit: the char containing the digit ('1' to '9')
  * @param board: an array containing the 9x9 sudoku board 
@@ -158,7 +156,8 @@ bool check_block(const int vertical_offset, const int horizontal_offset, const c
 }
 
 /**
- * @brief Check if a digit is already present at a specific board position
+ * @brief Check if a digit is already present at a specific board position. The format
+ * of positions is position[0] = 'A'-'I' (row) & position[1] = '1'-'9' (column)
  * 
  * @param position: a char array indicating the position in the board 
  * @param board: an array containing the 9x9 sudoku board
@@ -190,7 +189,7 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 	// Place the digit if insertion is valid 
 	if (check_row_and_column(row_n, column_n, digit, board)
 		&& check_block(vertical_offset, horizontal_offset, digit, board)){ 
-
+		
 		board[row_n][column_n] = digit;
 		return true;
 	}
@@ -198,15 +197,17 @@ bool make_move(const char position[2], const char digit, char board[9][9]){
 	return false; // Invalid insertion of the digit at that position
 }
 
-bool save_board(char* filename, const char board[9][9]){
+bool save_board(const char* filename, const char board[9][9]){
 	ofstream os(filename);
+
+	// Return false if file could not be opened
 	if (!os){
 		cout << "Failed" << endl;
 		return false;
 	}
 	char board_row[9];
 	for (int row_n=0; row_n<9; row_n++){
-		strncpy(board_row, board[row_n], 9); // Copy the first 9 elements of the array (the entire row)
+		strncpy(board_row, board[row_n], 9); // Copy the 9 row elements 
 		os << board_row << endl;
 	}
 	return true;
@@ -214,7 +215,8 @@ bool save_board(char* filename, const char board[9][9]){
 
 /**
  * @brief Given the previous position that the find_next_digit function was checking,
- * determine the following position that the recursive function must check
+ * determine the current position that the recursive function must check. The format of
+ * positions is position[0] = 'A'-'I' (row) & position[1] = '1'-'9' (column)
  * 
  * @param previous_position: The position that the previous recursive call was checking 
  * @param current_position: The position that the current recursive call must check 
@@ -234,48 +236,44 @@ void get_current_position(char previous_position[2], char current_position[2], c
 			current_position[1] = '1';
 		}
 
-		// If empty position found, leave loop
+		// If empty position found, exit loop
 		if (!number_already_present(current_position, board))
 			empty_position_found = true;
 	}
 }
 
 /**
- * @brief Recursive function that will find a valid digit for a specific position and then
- * move on to the next position, and keep repeating the process. When no valid digits are 
- * found, it goes to the previous position and tries new digits 
+ * @brief Recursive function that will find a valid digit for a specific position and move
+ * on to the next empty position, and keep repeating the process. When a valid digit is not
+ * found, it goes to the previous position and tries new digits. If a valid solution cannot 
+ * be found, false is the final return value of the recursive process 
  * 
  * @param previous_position: The position that the previous recursive call was checking 
  * @param board: an array containing the 9x9 sudoku board  
- * @return true if valid digits have been found for all the empty board positions 
+ * @return true if valid digits found for all empty board positions (i.e., solution found)
  * @return false if a valid digit was not found at a specific position 
  */
 bool find_next_digit(char previous_position[2], char board[9][9]){
+	// Keep track of the number of times the function is called when solving a board
 	static int num_of_recursive_calls = 0;
 	num_of_recursive_calls += 1;
+
 	bool valid_move, solution_found;
 	char current_position[] = ".."; 
 	get_current_position(previous_position, current_position, board);
 	int row_n = current_position[0] - 'A';
 	int column_n = current_position[1] - '1';
 
-	// Go to the next position if there is a number present in the current cell
-	if (number_already_present(current_position, board)) {
-		//num_of_recursive_calls += 1;
-		return find_next_digit(current_position, board);
-	}
-
 	for (char digit='1'; digit<='9'; digit++){
-		valid_move = make_move(current_position, digit, board); // Try to make move
+		valid_move = make_move(current_position, digit, board); // Try to insert digit
 		if (valid_move){
-			if (is_complete(board)){ // Final cell reached and board solved
-				cout << "Number of backtracks: " << num_of_recursive_calls << endl;
-				num_of_recursive_calls = 0;
+			if (is_complete(board)){ // The last move solved the board 
+				cout << "Number of recursive calls: " << num_of_recursive_calls << endl;
+				num_of_recursive_calls = 0; // Reset to 0 when solution found
 				return true; 
 			}
 			else {
 				// With the newly iserted digit, try to find a board solution
-				//num_of_recursive_calls += 1;
 				solution_found = find_next_digit(current_position, board);	
 				if (solution_found)
 					return true; // The inserted digit led to a solution
@@ -287,13 +285,14 @@ bool find_next_digit(char previous_position[2], char board[9][9]){
 		}
 		
 	}
-	if (row_n==0 && column_n==0)
-		num_of_recursive_calls = 0; // Reset it to 0 if the board has no solution
-	return false; // No valid digit was found
+
+	// Reset recursive calls to 0 if the board has no solution
+	if (strcmp(previous_position, "A0") == 0)
+		num_of_recursive_calls = 0; 
+	return false; // No valid digit was found for the position
 }
 
 bool solve_board(char board[9][9]){
 	char initial_position[] = "A0"; // Indicate board solving process has not started
 	return find_next_digit(initial_position, board);
 }
-
